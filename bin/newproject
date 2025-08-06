@@ -1,0 +1,19 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+  echo "Usage: newproject <project-name>"
+  exit 1
+fi
+
+PROJECT_NAME="$1"
+TARGET_DIR=./$PROJECT_NAME
+
+if [ -d "$TARGET_DIR" ]; then
+  echo "Project $PROJECT_NAME already exists."
+  exit 1
+fi
+
+mkdir -p $PROJECTS_HOME
+cp -r $PROJECTS_HOME/.template "$TARGET_DIR"
+cd "$TARGET_DIR"
+echo "Created new project at $TARGET_DIR"

@@ -1,0 +1,11 @@
+
+- name: Install direnv
+  apt:
+    name: direnv
+    state: present
+
+- name: Hook direnv into bashrc
+  lineinfile:
+    path: ~/.bashrc
+    line: 'eval "$(direnv hook bash)"'
+    insertafter: EOF

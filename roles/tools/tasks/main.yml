@@ -1,0 +1,10 @@
+
+- name: Install aichat
+  shell: pipx install aichat || true
+  environment:
+    PIPX_DEFAULT_PYTHON: /usr/bin/python3
+
+- name: Ensure bin directory exists
+  file:
+    path: ~/bin
+    state: directory

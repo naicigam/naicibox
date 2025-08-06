@@ -1,0 +1,11 @@
+- name: Ensure ~/.bashrc is in place
+  copy:
+    src: "{{ playbook_dir }}/files/.bashrc"
+    dest: ~/.bashrc
+    backup: yes
+
+- name: Ensure ~/.bash_aliases is in place
+  copy:
+    src: "{{ playbook_dir }}/files/.bash_aliases"
+    dest: ~/.bash_aliases
+    backup: yes

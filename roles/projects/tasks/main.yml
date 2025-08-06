@@ -1,0 +1,6 @@
+
+- name: Deploy project template
+  copy:
+    src: .template
+    dest: $PROJECTS_HOME/.template
+    mode: '0755'

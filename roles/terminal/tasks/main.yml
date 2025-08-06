@@ -1,0 +1,11 @@
+
+- name: Install tmux and starship
+  apt:
+    name: [tmux]
+    state: present
+
+- name: Download and install Starship
+  shell: curl -fsSL https://starship.rs/install.sh | sh -s -- -y
+  args:
+    executable: /bin/sh
+
