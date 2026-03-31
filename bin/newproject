@@ -1,19 +1,52 @@
 #!/bin/bash
+set -euo pipefail
 
-if [ -z "$1" ]; then
+if [ -z "${1:-}" ]; then
   echo "Usage: newproject <project-name>"
   exit 1
 fi
 
-PROJECT_NAME="$1"
-TARGET_DIR=./$PROJECT_NAME
-
-if [ -d "$TARGET_DIR" ]; then
-  echo "Project $PROJECT_NAME already exists."
+if [ -z "${PROJECTS_HOME:-}" ]; then
+  echo "ERROR: PROJECTS_HOME is not set. Run setup.sh first."
   exit 1
 fi
 
-mkdir -p $PROJECTS_HOME
-cp -r $PROJECTS_HOME/.template "$TARGET_DIR"
-cd "$TARGET_DIR"
-echo "Created new project at $TARGET_DIR"
+if [ -z "${NAICIBOX_HOME:-}" ]; then
+  echo "ERROR: NAICIBOX_HOME is not set. Run setup.sh first."
+  exit 1
+fi
+
+PROJECT_NAME="$1"
+CONFIG_DIR="$PROJECTS_HOME/.naicibox/$PROJECT_NAME"
+
+if [ -d "$CONFIG_DIR" ]; then
+  echo "Project $PROJECT_NAME already exists in .naicibox/"
+  exit 1
+fi
+
+# Use current directory if it matches the project name, otherwise create in PROJECTS_HOME
+if [ "$(basename "$PWD")" = "$PROJECT_NAME" ]; then
+  PROJECT_DIR="$PWD"
+else
+  PROJECT_DIR="$PROJECTS_HOME/$PROJECT_NAME"
+  mkdir -p "$PROJECT_DIR"
+fi
+
+# Create naicibox config for this project
+mkdir -p "$PROJECTS_HOME/.naicibox"
+cp -r "$NAICIBOX_HOME/template/config" "$CONFIG_DIR"
+find "$CONFIG_DIR" -type f -exec sed -i "s/__PROJECT_NAME__/$PROJECT_NAME/g" {} +
+
+# Store project path so project-start.sh can find it
+echo "$PROJECT_DIR" > "$CONFIG_DIR/path"
+
+# Generate .envrc in the project directory
+cp "$NAICIBOX_HOME/template/envrc" "$PROJECT_DIR/.envrc"
+sed -i 's/\r$//' "$PROJECT_DIR/.envrc"
+direnv allow "$PROJECT_DIR"
+
+# Seed project bash history with cd command for ctrl-r access
+echo "cd $PROJECT_DIR" >> "$PROJECT_DIR/.bash_history"
+
+echo "Created project at $PROJECT_DIR"
+echo "Config at $CONFIG_DIR"

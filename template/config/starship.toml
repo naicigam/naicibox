@@ -1,0 +1,32 @@
+# Project-specific Starship config
+# Docs: https://starship.rs/config/
+
+scan_timeout = 50
+
+# --- Cloud/infra modules (enable per project as needed) ---
+
+[aws]
+disabled = true
+# disabled = false
+# format = '[$symbol($profile )(\($region\) )]($style)'
+
+[gcloud]
+disabled = true
+# disabled = false
+# format = '[$symbol$project(\($region\))]($style) '
+
+[azure]
+disabled = true
+
+[kubernetes]
+disabled = true
+# disabled = false
+# format = '[$symbol$context( \($namespace\))]($style) '
+
+[docker_context]
+disabled = true
+# disabled = false
+
+[terraform]
+disabled = true
+# disabled = false
