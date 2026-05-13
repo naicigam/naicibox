@@ -1,6 +1,27 @@
 #!/bin/bash
 set -euo pipefail
 
+case "${1:-}" in
+  -h|--help)
+    cat <<'USAGE'
+Usage: project-start <project-name>
+
+Launch VS Code and a 2-pane tmux session for a project previously
+registered with `newproject`. Top pane runs Claude Code, bottom pane is
+a shell. Re-attaches and rebuilds layout if the tmux session already
+exists.
+
+Required environment:
+  PROJECTS_HOME   parent dir holding $PROJECTS_HOME/.naicibox/<project>
+
+Exit codes:
+  0  success
+  1  project not registered, PROJECTS_HOME unset, or project dir missing
+USAGE
+    exit 0
+    ;;
+esac
+
 if [ -z "${1:-}" ]; then
   echo "Usage: project-start <project-name>"
   exit 1

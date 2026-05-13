@@ -1,6 +1,30 @@
 #!/bin/bash
 set -euo pipefail
 
+case "${1:-}" in
+  -h|--help)
+    cat <<'USAGE'
+Usage: setup.sh
+
+Provision a host with naicibox: install apt packages, Starship, VS Code,
+and Claude Code; deploy ~/.tmux.conf and ~/.claude/settings.json (backing
+up any prior files); inject a naicibox block into ~/.bashrc; and create
+$PROJECTS_HOME/.naicibox.
+
+Required environment:
+  PROJECTS_HOME   directory that will hold per-project trees and config
+                  (e.g. ~/projects). Must be exported before running.
+
+Reads NAICIBOX_HOME from the script's own location.
+
+Exit codes:
+  0  success
+  1  invalid invocation (root/sudo, PROJECTS_HOME unset, npm missing)
+USAGE
+    exit 0
+    ;;
+esac
+
 if [ "$(id -u)" -eq 0 ]; then
   echo "ERROR: Do not run setup.sh as root or with sudo. It uses sudo internally where needed."
   exit 1

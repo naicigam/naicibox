@@ -1,6 +1,30 @@
 #!/bin/bash
 set -euo pipefail
 
+case "${1:-}" in
+  -h|--help)
+    cat <<'USAGE'
+Usage: newproject <project-name>
+
+Register a project with naicibox. Creates $PROJECTS_HOME/<project-name>
+(or adopts the current directory if its basename matches), copies the
+naicibox template into $PROJECTS_HOME/.naicibox/<project-name>, drops a
+direnv-allowed .envrc into the project, and seeds .bash_history.
+
+Required environment:
+  PROJECTS_HOME   parent dir for project trees and .naicibox config
+  NAICIBOX_HOME   path to this naicibox checkout (template source)
+
+project-name must match ^[A-Za-z0-9][A-Za-z0-9._-]*$.
+
+Exit codes:
+  0  success
+  1  invalid invocation or project already exists
+USAGE
+    exit 0
+    ;;
+esac
+
 if [ -z "${1:-}" ]; then
   echo "Usage: newproject <project-name>"
   exit 1
