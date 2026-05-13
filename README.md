@@ -90,7 +90,7 @@ If the current directory name matches the project name, `newproject` sets up nai
 ### 3. Start a Project
 
 ```bash
-project-start.sh myproject
+project-start myproject
 ```
 
 Launches VS Code and a tmux session with Claude Code on top and a shell on the bottom.
@@ -123,4 +123,4 @@ alias serve='python3 -m http.server'
 - `files/` — base `.bashrc`, `.bash_aliases`, and `.tmux.conf`
 - `template/config/` — per-project config copied to `.naicibox/<project>/`
 - `template/envrc` — `.envrc` template generated into each project
-- `bin/` — helper scripts: `project-start.sh`, `newproject`
+- `bin/` — helper scripts: `project-start`, `newproject`
