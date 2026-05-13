@@ -31,32 +31,57 @@ cd "$PROJECT_DIR"
 # Launch VS Code before tmux attach (attach blocks the script)
 code . &
 
-# Launch tmux session if not already active
+# Launch tmux session if not already active.
+# We target panes and windows by their immutable IDs (e.g. %3, @7) rather than
+# by index, so this works regardless of the user's base-index / pane-base-index.
 if ! tmux has-session -t "$PROJECT_NAME" 2>/dev/null; then
   tmux new-session -d -s "$PROJECT_NAME" -c "$PROJECT_DIR" -n "$PROJECT_NAME"
   tmux set-option -t "$PROJECT_NAME" automatic-rename off
 
-  # Set pane title to project name
-  tmux select-pane -t "$PROJECT_NAME":1.0 -T "$PROJECT_NAME"
+  # Capture the id of the only window and its only pane.
+  WINDOW_ID=$(tmux list-windows -t "$PROJECT_NAME" -F '#{window_id}' | head -n1)
+  TOP_PANE=$(tmux list-panes -t "$WINDOW_ID" -F '#{pane_id}' | head -n1)
+
+  tmux select-pane -t "$TOP_PANE" -T "$PROJECT_NAME"
 
   # Sign in to 1Password if op is available
   if command -v op &>/dev/null; then
-    tmux send-keys -t "$PROJECT_NAME":1 'eval $(op signin)' C-m
+    tmux send-keys -t "$TOP_PANE" 'eval $(op signin)' C-m
   fi
 
   # Source project-specific shell config in both panes
   if [ -f "$CONFIG_DIR/.bashrc" ]; then
-    tmux send-keys -t "$PROJECT_NAME":1 "source \"$CONFIG_DIR/.bashrc\"" C-m
+    tmux send-keys -t "$TOP_PANE" "source \"$CONFIG_DIR/.bashrc\"" C-m
   fi
 
-  tmux send-keys -t "$PROJECT_NAME":1 "claude -c --enable-auto-mode" C-m
-  tmux split-window -t "$PROJECT_NAME":1 -v -c "$PROJECT_DIR"
+  tmux send-keys -t "$TOP_PANE" "claude -c --enable-auto-mode" C-m
 
-  # Set pane title for the bottom pane too
-  tmux select-pane -t "$PROJECT_NAME":1.1 -T "$PROJECT_NAME"
+  BOTTOM_PANE=$(tmux split-window -t "$TOP_PANE" -v -c "$PROJECT_DIR" -P -F '#{pane_id}')
+  tmux select-pane -t "$BOTTOM_PANE" -T "$PROJECT_NAME"
 
   if [ -f "$CONFIG_DIR/.bashrc" ]; then
-    tmux send-keys -t "$PROJECT_NAME":1.1 "source \"$CONFIG_DIR/.bashrc\"" C-m
+    tmux send-keys -t "$BOTTOM_PANE" "source \"$CONFIG_DIR/.bashrc\"" C-m
+  fi
+else
+  # Session exists — ensure expected 2-pane layout
+
+  WINDOW_ID=$(tmux list-windows -t "$PROJECT_NAME" -F '#{window_id}' | head -n1)
+
+  # Unzoom if a pane is zoomed (otherwise split/select commands fail)
+  if [ "$(tmux display-message -t "$WINDOW_ID" -p '#{window_zoomed_flag}')" = "1" ]; then
+    tmux resize-pane -t "$WINDOW_ID" -Z
+  fi
+
+  PANE_COUNT=$(tmux list-panes -t "$WINDOW_ID" -F '#{pane_id}' | wc -l)
+
+  if [ "$PANE_COUNT" -lt 2 ]; then
+    # Only 1 pane — add the missing shell pane below
+    BOTTOM_PANE=$(tmux split-window -t "$WINDOW_ID" -v -c "$PROJECT_DIR" -P -F '#{pane_id}')
+    tmux select-pane -t "$BOTTOM_PANE" -T "$PROJECT_NAME"
+
+    if [ -f "$CONFIG_DIR/.bashrc" ]; then
+      tmux send-keys -t "$BOTTOM_PANE" "source \"$CONFIG_DIR/.bashrc\"" C-m
+    fi
   fi
 fi
 
