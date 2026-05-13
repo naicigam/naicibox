@@ -53,10 +53,12 @@ else
   echo "==> Claude Code already installed"
 fi
 
+BACKUP_STAMP="$(date +%Y%m%d-%H%M%S)"
+
 # --- 5. Deploy .tmux.conf ---
 if [ -f "$HOME/.tmux.conf" ] && [ ! -L "$HOME/.tmux.conf" ]; then
-  cp "$HOME/.tmux.conf" "$HOME/.tmux.conf.bak"
-  echo "    Backed up ~/.tmux.conf"
+  cp "$HOME/.tmux.conf" "$HOME/.tmux.conf.bak.$BACKUP_STAMP"
+  echo "    Backed up ~/.tmux.conf -> ~/.tmux.conf.bak.$BACKUP_STAMP"
 fi
 cp "$NAICIBOX_HOME/files/.tmux.conf" "$HOME/.tmux.conf"
 echo "    Copied .tmux.conf"
@@ -64,8 +66,8 @@ echo "    Copied .tmux.conf"
 # --- 6. Deploy Claude Code settings ---
 mkdir -p "$HOME/.claude"
 if [ -f "$HOME/.claude/settings.json" ]; then
-  cp "$HOME/.claude/settings.json" "$HOME/.claude/settings.json.bak"
-  echo "    Backed up ~/.claude/settings.json"
+  cp "$HOME/.claude/settings.json" "$HOME/.claude/settings.json.bak.$BACKUP_STAMP"
+  echo "    Backed up ~/.claude/settings.json -> ~/.claude/settings.json.bak.$BACKUP_STAMP"
 fi
 cp "$NAICIBOX_HOME/files/claude-settings.json" "$HOME/.claude/settings.json"
 echo "    Copied Claude Code settings"
