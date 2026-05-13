@@ -1,0 +1,50 @@
+#!/bin/bash
+set -euo pipefail
+
+case "${1:-}" in
+  -h|--help)
+    cat <<'USAGE'
+Usage: lsprojects
+
+List projects registered with naicibox. Reads
+$PROJECTS_HOME/.naicibox/*/path and prints "<name>\t<path>". A
+trailing "(missing)" is appended when the recorded path no longer
+exists on disk.
+
+Required environment:
+  PROJECTS_HOME   parent dir holding $PROJECTS_HOME/.naicibox
+
+Exit codes:
+  0  success (including when no projects are registered)
+  1  PROJECTS_HOME unset
+USAGE
+    exit 0
+    ;;
+esac
+
+if [ -z "${PROJECTS_HOME:-}" ]; then
+  echo "ERROR: PROJECTS_HOME is not set. Run setup.sh first."
+  exit 1
+fi
+
+CONFIG_ROOT="$PROJECTS_HOME/.naicibox"
+if [ ! -d "$CONFIG_ROOT" ]; then
+  exit 0
+fi
+
+shopt -s nullglob
+any=0
+for path_file in "$CONFIG_ROOT"/*/path; do
+  any=1
+  name="$(basename "$(dirname "$path_file")")"
+  dir="$(cat "$path_file")"
+  if [ -d "$dir" ]; then
+    printf '%s\t%s\n' "$name" "$dir"
+  else
+    printf '%s\t%s\t(missing)\n' "$name" "$dir"
+  fi
+done
+
+if [ "$any" -eq 0 ]; then
+  exit 0
+fi

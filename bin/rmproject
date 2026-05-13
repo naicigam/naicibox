@@ -1,0 +1,90 @@
+#!/bin/bash
+set -euo pipefail
+
+case "${1:-}" in
+  -h|--help)
+    cat <<'USAGE'
+Usage: rmproject <project-name> [--purge] [-y|--yes]
+
+Remove a project registered with naicibox.
+
+Default behaviour: deletes $PROJECTS_HOME/.naicibox/<project-name> only.
+With --purge: also deletes the project directory (the path stored in
+.naicibox/<project-name>/path). Prompts for confirmation; pass -y to
+skip the prompt.
+
+Required environment:
+  PROJECTS_HOME   parent dir holding $PROJECTS_HOME/.naicibox
+
+Exit codes:
+  0  success
+  1  invalid invocation or project not found
+USAGE
+    exit 0
+    ;;
+esac
+
+if [ -z "${1:-}" ]; then
+  echo "Usage: rmproject <project-name> [--purge] [-y|--yes]"
+  exit 1
+fi
+
+if [ -z "${PROJECTS_HOME:-}" ]; then
+  echo "ERROR: PROJECTS_HOME is not set. Run setup.sh first."
+  exit 1
+fi
+
+PROJECT_NAME="$1"
+shift
+
+if ! [[ "$PROJECT_NAME" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
+  echo "ERROR: Invalid project name '$PROJECT_NAME'."
+  exit 1
+fi
+
+PURGE=0
+ASSUME_YES=0
+for arg in "$@"; do
+  case "$arg" in
+    --purge) PURGE=1 ;;
+    -y|--yes) ASSUME_YES=1 ;;
+    *)
+      echo "ERROR: Unknown option '$arg'."
+      exit 1
+      ;;
+  esac
+done
+
+CONFIG_DIR="$PROJECTS_HOME/.naicibox/$PROJECT_NAME"
+if [ ! -d "$CONFIG_DIR" ]; then
+  echo "ERROR: Project '$PROJECT_NAME' is not registered."
+  exit 1
+fi
+
+PROJECT_DIR=""
+if [ -f "$CONFIG_DIR/path" ]; then
+  PROJECT_DIR="$(cat "$CONFIG_DIR/path")"
+fi
+
+if [ "$PURGE" -eq 1 ] && [ -n "$PROJECT_DIR" ] && [ -d "$PROJECT_DIR" ]; then
+  if [ "$ASSUME_YES" -ne 1 ]; then
+    printf "About to delete project directory %s. Continue? [y/N] " "$PROJECT_DIR"
+    read -r reply
+    case "$reply" in
+      y|Y|yes|YES) ;;
+      *)
+        echo "Aborted."
+        exit 1
+        ;;
+    esac
+  fi
+  rm -rf -- "$PROJECT_DIR"
+  echo "Deleted $PROJECT_DIR"
+fi
+
+rm -rf -- "$CONFIG_DIR"
+echo "Removed naicibox config $CONFIG_DIR"
+
+if [ "$PURGE" -ne 1 ] && [ -n "$PROJECT_DIR" ] && [ -d "$PROJECT_DIR" ]; then
+  echo "Project directory left intact at $PROJECT_DIR (pass --purge to delete)."
+fi
