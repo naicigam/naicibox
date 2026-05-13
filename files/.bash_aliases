@@ -1,4 +1,5 @@
 # ~/.bash_aliases base for Naicibox
+# shellcheck shell=bash
 
 # Git
 alias gs='git status'
