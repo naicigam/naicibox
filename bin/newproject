@@ -46,7 +46,7 @@ mkdir -p "$PROJECTS_HOME/.naicibox"
 cp -r "$NAICIBOX_HOME/template/config" "$CONFIG_DIR"
 find "$CONFIG_DIR" -type f -exec sed -i "s/__PROJECT_NAME__/$PROJECT_NAME/g" {} +
 
-# Store project path so project-start.sh can find it
+# Store project path so project-start can find it
 echo "$PROJECT_DIR" > "$CONFIG_DIR/path"
 
 # Generate .envrc in the project directory
