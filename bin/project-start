@@ -67,6 +67,9 @@ if ! tmux has-session -t "$PROJECT_NAME" 2>/dev/null; then
 
   # Sign in to 1Password if op is available
   if command -v op &>/dev/null; then
+    # Single quotes are intentional: the literal `eval $(op signin)` should be
+    # evaluated inside the tmux pane, not by this script.
+    # shellcheck disable=SC2016
     tmux send-keys -t "$TOP_PANE" 'eval $(op signin)' C-m
   fi
 
