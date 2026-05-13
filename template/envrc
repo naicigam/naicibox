@@ -6,5 +6,5 @@ export STARSHIP_CONFIG="$NAICIBOX_CONFIG/starship.toml"
 
 # Auto-start tmux session if not already inside one
 if [ -z "${TMUX:-}" ]; then
-  project-start.sh "$(basename "$PWD")"
+  project-start "$(basename "$PWD")"
 fi
