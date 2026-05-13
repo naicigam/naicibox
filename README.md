@@ -123,4 +123,4 @@ alias serve='python3 -m http.server'
 - `files/` — base `.bashrc`, `.bash_aliases`, and `.tmux.conf`
 - `template/config/` — per-project config copied to `.naicibox/<project>/`
 - `template/envrc` — `.envrc` template generated into each project
-- `bin/` — helper scripts: `project-start.sh`, `newproject`
+- `bin/` — helper scripts: `project-start.sh`, `newproject`, `lsprojects`, `rmproject`
