@@ -4,7 +4,9 @@ NAICIBOX_CONFIG="$PROJECTS_HOME/.naicibox/$(basename "$PWD")"
 export HISTFILE="$PWD/.bash_history"
 export STARSHIP_CONFIG="$NAICIBOX_CONFIG/starship.toml"
 
-# Auto-start tmux session if not already inside one
-if [ -z "${TMUX:-}" ]; then
+# Auto-start tmux session only when explicitly opted in.
+# Set NAICIBOX_AUTOSTART=1 (e.g. in ~/.bashrc) to enable; off by default
+# so scripts and non-interactive `cd` don't spawn tmux.
+if [ "${NAICIBOX_AUTOSTART:-0}" = "1" ] && [ -z "${TMUX:-}" ]; then
   project-start "$(basename "$PWD")"
 fi
