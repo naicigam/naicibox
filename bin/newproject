@@ -17,6 +17,15 @@ if [ -z "${NAICIBOX_HOME:-}" ]; then
 fi
 
 PROJECT_NAME="$1"
+
+# Project name is interpolated into sed scripts and used as a directory
+# component, so reject anything that could escape either context.
+if ! [[ "$PROJECT_NAME" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
+  echo "ERROR: Invalid project name '$PROJECT_NAME'."
+  echo "       Must start with [A-Za-z0-9] and contain only [A-Za-z0-9._-]."
+  exit 1
+fi
+
 CONFIG_DIR="$PROJECTS_HOME/.naicibox/$PROJECT_NAME"
 
 if [ -d "$CONFIG_DIR" ]; then
