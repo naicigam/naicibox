@@ -54,7 +54,14 @@ if ! tmux has-session -t "$PROJECT_NAME" 2>/dev/null; then
     tmux send-keys -t "$TOP_PANE" "source \"$CONFIG_DIR/.bashrc\"" C-m
   fi
 
-  tmux send-keys -t "$TOP_PANE" "claude -c --enable-auto-mode" C-m
+  # `claude -c` resumes the last session and errors out if none exists yet,
+  # so the very first launch uses plain `claude` and records a marker.
+  if [ -f "$CONFIG_DIR/launched" ]; then
+    tmux send-keys -t "$TOP_PANE" "claude -c --enable-auto-mode" C-m
+  else
+    tmux send-keys -t "$TOP_PANE" "claude --enable-auto-mode" C-m
+    touch "$CONFIG_DIR/launched"
+  fi
 
   BOTTOM_PANE=$(tmux split-window -t "$TOP_PANE" -v -c "$PROJECT_DIR" -P -F '#{pane_id}')
   tmux select-pane -t "$BOTTOM_PANE" -T "$PROJECT_NAME"
