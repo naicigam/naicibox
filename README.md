@@ -120,6 +120,7 @@ alias serve='python3 -m http.server'
 ## What's Included
 
 - `setup.sh` — single entry point for environment provisioning
+- `uninstall.sh` — strips the naicibox block from `~/.bashrc` and restores deployed dotfiles from their latest `.bak`
 - `files/` — base `.bashrc`, `.bash_aliases`, and `.tmux.conf`
 - `template/config/` — per-project config copied to `.naicibox/<project>/`
 - `template/envrc` — `.envrc` template generated into each project
